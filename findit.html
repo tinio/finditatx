@@ -2,19 +2,39 @@
   <head>
     <script type='text/javascript' src='http://maps.google.com/maps/api/js?sensor=false'></script>
     <script type='text/javascript'>
+	var map = null;
+	var fire_stations = null;
+	var libraries = null;
+    function toggle_fire() {
+         if(fire_stations.map) {
+             fire_stations.setMap(null);
+         }else {
+             fire_stations.setMap(map);
+         }
+     }
+     function toggle_libraries() {
+          if(libraries.map) {
+              libraries.setMap(null);
+          }else {
+              libraries.setMap(map);
+          }
+      }	 
       function initialize() {
         var conjunctured = new google.maps.LatLng(30.265188, -97.729142);
-        var map = new google.maps.Map(document.getElementById('accident-map'), {
+        map = new google.maps.Map(document.getElementById('accident-map'), {
           center: conjunctured,
           zoom: 13,
           mapTypeId: google.maps.MapTypeId.ROADMAP
         });
-        var fire_stations = new google.maps.FusionTablesLayer(2987477);
+        fire_stations = new google.maps.FusionTablesLayer(3046433);
+        libraries = new google.maps.FusionTablesLayer(3046055);
         fire_stations.setMap(map);
       }
     </script>
   </head>
   <body onload='initialize()' style='height: 100%; margin: 0px; padding: 0px'>
+	<input type="radio" checked name="layer" value="firestations" onclick="toggle_fire()"/>Fire Stations
+	<input type="radio" name="layer" value="libraries" onclick="toggle_libraries()"/>Libraries
     <div id="accident-map" style='height: 100%'></div>
   </body>
 </html>
