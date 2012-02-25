@@ -1,0 +1,20 @@
+<html style='height: 100%'>
+  <head>
+    <script type='text/javascript' src='http://maps.google.com/maps/api/js?sensor=false'></script>
+    <script type='text/javascript'>
+      function initialize() {
+        var conjunctured = new google.maps.LatLng(30.265188, -97.729142);
+        var map = new google.maps.Map(document.getElementById('accident-map'), {
+          center: conjunctured,
+          zoom: 13,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        });
+        var fire_stations = new google.maps.FusionTablesLayer(2987477);
+        fire_stations.setMap(map);
+      }
+    </script>
+  </head>
+  <body onload='initialize()' style='height: 100%; margin: 0px; padding: 0px'>
+    <div id="accident-map" style='height: 100%'></div>
+  </body>
+</html>
