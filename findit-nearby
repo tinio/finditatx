@@ -1,0 +1,132 @@
+#!/usr/bin/env - ruby
+#
+# findit-nearby - Find nearby points of interest, proof of concept.
+#
+# This is very slow because it is querying against Google Fusion Tables. The data
+# should be moved local.
+#
+# Next step would be to convert this to a web service that accepts current lat/long,
+# and returns results in a JSON structure.
+#
+
+require 'rubygems'
+require 'uri'
+require 'rest-client'
+require 'csv'
+
+USAGE = "usage: #{$0} latitude longitude"
+
+def die(mssg)
+  $stderr.puts(mssg)
+  exit(1)
+end
+
+### die(USAGE) unless ARGV.length == 2
+### current_loc = [ARGV[0].to_f, ARGV[1].to_f]
+
+# Fix to lat/long of my house.
+current_loc = [30.367534, -97.734225]
+
+# Simple cartesian distance.
+def distance(p1, p2)
+  Math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)  
+end
+
+# Submit a query to a Google Fusion Table which returns CSV text.
+def query_google_fusion_tables(table_id, where_clause = '', cols = '*')
+  sql = "SELECT #{cols} FROM #{table_id}"
+  sql += " WHERE  #{where_clause}" unless where_clause.empty?
+  url = "https://www.google.com/fusiontables/api/query?sql=" + URI.escape(sql)
+  RestClient.get url
+end
+
+# Some of the CoA datasets have lat/long encoded in an XML field.
+def parse_geometry(geo)
+  if geo.match(%r{<Point><coordinates>(.*),(.*)</coordinates></Point>})
+    [$2.to_f, $1.to_f]
+  else
+    nil
+  end
+end
+
+def closest_facility(factype, p)  
+  resp = query_google_fusion_tables('3046433', "FACILITY='#{factype}'")
+  closest = nil
+  CSV.parse(resp, :headers => true) do |row|
+    p1 = parse_geometry(row['geometry'])
+    if p1
+      d = distance(p, p1)
+      if closest.nil? || d < closest[:distance]
+        closest = {
+          :object => factype.upcase.gsub(/\s+/, '_').to_sym,
+          :name => row['Name'],
+          :address => row['ADDRESS'],
+          :latitude => p1[0],
+          :longitude => p1[1],
+          :distance => d,
+          :raw_data => row,
+        }
+      end      
+    end
+  end
+  closest
+end
+
+def closest_post_office(p)
+  closest_facility("POST OFFICE", p)
+end
+
+def closest_library(p)
+  closest_facility("LIBRARY", p)
+end
+
+def closest_fire_station(p)
+  resp = query_google_fusion_tables('2987477')
+  closest = nil
+  CSV.parse(resp, :headers => true) do |row|
+    p1 = [row['Latitude'].to_f, row['Longitude'].to_f]
+    d = distance(p, p1)
+    if closest.nil? || d < closest[:distance]
+      row['distance'] = d
+      closest = {
+        :object => :FIRE_STATION,
+        :name => nil,
+        :address => row['Address'],
+        :latitude => p1[0],
+        :longitude => p1[1],
+        :distance => d,      
+        :raw_data => row,
+      }
+    end
+  end
+  closest
+end
+
+def closest_moon_tower(p)
+  resp = query_google_fusion_tables('3046440', "BUILDING_N='MOONLIGHT TOWERS'")
+  closest = nil
+  CSV.parse(resp, :headers => true) do |row|
+    p1 = parse_geometry(row['geometry'])
+    if p1
+      d = distance(p, p1)
+      if closest.nil? || d < closest[:distance]
+        closest = {
+          :object => :MOON_TOWER,
+          :name => nil,
+          :address => row['ADDRESS'],
+          :latitude => p1[0],
+          :longitude => p1[1],
+          :distance => d,
+          :raw_data => row,
+        }
+      end
+    end
+  end
+  closest
+end
+
+require "pp"
+pp closest_post_office(current_loc)
+pp closest_library(current_loc)
+pp closest_fire_station(current_loc)
+pp closest_moon_tower(current_loc)
