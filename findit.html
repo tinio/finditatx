@@ -9,6 +9,7 @@
 	var facilities = null;
 	var landmarks = null;
 	var bike_routes = null;
+	var transit_stops = null;
 	function clear_layers() {
 		fire_stations.setMap(null);
 		libraries.setMap(null);
@@ -16,6 +17,7 @@
 		facilities.setMap(null);
 		landmarks.setMap(null);
 		bike_routes.setMap(null);
+		transit_stops.setMap(null);
 	}
     function toggle_fire() {
 		clear_layers();
@@ -41,6 +43,10 @@
     	  clear_layers();
           bike_routes.setMap(map);
        }
+       function toggle_stops() {
+     	  clear_layers();
+          transit_stops.setMap(map);
+        }
       function initialize() {
         var conjunctured = new google.maps.LatLng(30.265188, -97.729142);
         map = new google.maps.Map(document.getElementById('accident-map'), {
@@ -54,6 +60,7 @@
         facilities = new google.maps.FusionTablesLayer(3046433);
         landmarks = new google.maps.FusionTablesLayer(3046440);		
         bike_routes = new google.maps.FusionTablesLayer(3047495);
+        transit_stops = new google.maps.FusionTablesLayer(3047833);
 
         fire_stations.setMap(map);
       }
@@ -66,6 +73,7 @@
 	<input type="radio" name="layer" value="facilities" onclick="toggle_facilities()"/>Facilities
 	<input type="radio" name="layer" value="landmarks" onclick="toggle_landmarks()"/>Landmarks
 	<input type="radio" name="layer" value="bikeroutes" onclick="toggle_bike()"/>Bike Routes
+	<input type="radio" name="layer" value="transitstops" onclick="toggle_stops()"/>Transit Stops
     <div id="accident-map" style='height: 100%'></div>
   </body>
 </html>
