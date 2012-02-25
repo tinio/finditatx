@@ -5,13 +5,17 @@
 	var map = null;
 	var fire_stations = null;
 	var libraries = null;
+	var parks = null;
 	var facilities = null;
 	var landmarks = null;
+	var bike_routes = null;
 	function clear_layers() {
 		fire_stations.setMap(null);
 		libraries.setMap(null);
+		parks.setMap(null);
 		facilities.setMap(null);
 		landmarks.setMap(null);
+		bike_routes.setMap(null);
 	}
     function toggle_fire() {
 		clear_layers();
@@ -21,6 +25,10 @@
 		 clear_layers();
          libraries.setMap(map);
       }	 
+      function toggle_parks() {
+ 		 clear_layers();
+         parks.setMap(map);
+      }	 
       function toggle_facilities() {
  		 clear_layers();
          facilities.setMap(map);
@@ -28,7 +36,11 @@
        function toggle_landmarks() {
     	  clear_layers();
           landmarks.setMap(map);
-       }	 	  
+	  }
+      function toggle_bike() {
+    	  clear_layers();
+          bike_routes.setMap(map);
+       }
       function initialize() {
         var conjunctured = new google.maps.LatLng(30.265188, -97.729142);
         map = new google.maps.Map(document.getElementById('accident-map'), {
@@ -38,8 +50,11 @@
         });
         fire_stations = new google.maps.FusionTablesLayer(2987477);
         libraries = new google.maps.FusionTablesLayer(3046055);
+        parks = new google.maps.FusionTablesLayer(3047621);
         facilities = new google.maps.FusionTablesLayer(3046433);
         landmarks = new google.maps.FusionTablesLayer(3046440);		
+        bike_routes = new google.maps.FusionTablesLayer(3047495);
+
         fire_stations.setMap(map);
       }
     </script>
@@ -47,8 +62,10 @@
   <body onload='initialize()' style='height: 100%; margin: 0px; padding: 0px'>
 	<input type="radio" checked name="layer" value="firestations" onclick="toggle_fire()"/>Fire Stations
 	<input type="radio" name="layer" value="libraries" onclick="toggle_libraries()"/>Libraries
+	<input type="radio" name="layer" value="parks" onclick="toggle_parks()"/>Parks
 	<input type="radio" name="layer" value="facilities" onclick="toggle_facilities()"/>Facilities
 	<input type="radio" name="layer" value="landmarks" onclick="toggle_landmarks()"/>Landmarks
+	<input type="radio" name="layer" value="bikeroutes" onclick="toggle_bike()"/>Bike Routes
     <div id="accident-map" style='height: 100%'></div>
   </body>
 </html>
